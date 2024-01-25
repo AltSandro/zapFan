@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FANselect Web API Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <script>
+        'use strict'
+        const dllPath = "http://fanselect.net:8079/FSWebService";
+        const username = 'ZAFS12488'; // Замените на ваш реальный логин
+        const password = 'Yi3j1u1'; // Замените на ваш реальный пароль
+
+        // 1st Request: Obtain Session ID
+        const getSessionId = async () => {
+            const requestString = {
+                cmd: 'create_session',
+                username: username,
+                password: password
+            };
+
+            try {
+                const response = await axios.post(dllPath, requestString);
+                const sessionId = response.data.SESSIONID;
+                return sessionId;
+            } catch (error) {
+                console.error('Error getting session ID:', error.message);
+                throw error;
+            }
+        };
+
+        // 2nd Request: Usual Request with Session ID
+        const fanSelectionRequest = async (sessionId) => {
+            const requestString = {
+                username: username,
+                password: password,
+                language: 'EN',
+                unit_system: 'm',
+                cmd: 'search',
+                cmd_param: '0',
+                spec_products: 'PF_00',
+                product_range: 'BR_01',
+                qv: '2500',
+                psf: '50',
+                current_phase: '3',
+                voltage: '400',
+                nominal_frequency: '50',
+                sessionid: sessionId,
+                full_octave_band: true
+            };
+
+            try {
+                const response = await axios.post(dllPath, requestString);
+                const fanSelectionResult = response.data;
+                console.log('Fan Selection Result:', fanSelectionResult);
+            } catch (error) {
+                console.error('Error making fan selection request:', error.message);
+                throw error;
+            }
+        };
+
+        // Usage
+        (async () => {
+            try {
+                const sessionId = await getSessionId();
+                await fanSelectionRequest(sessionId);
+            } catch (error) {
+                console.error('An error occurred:', error.message);
+            }
+        })();
+    </script>
+</body>
+</html>
